@@ -1,0 +1,45 @@
+body {
+    background-color: #f4f7f6 !important;
+}
+
+.card {
+    border-radius: 16px;
+}
+
+.input-group-text {
+    color: #6c757d;
+    border-right: none;
+}
+
+.input-group .form-control {
+    border-left: none;
+}
+
+.input-group .form-control:focus {
+    box-shadow: none;
+    border-color: #ced4da;
+}
+
+/* Tela de login */
+.login-card {
+    max-width: 420px;
+    width: 100%;
+    border-radius: 12px;
+}
+
+/* Mapa (páginas públicas) */
+#mapa {
+    height: 420px;
+    width: 100%;
+    border-radius: 12px;
+    z-index: 1;
+}
+
+.ponto-vermelho {
+    background-color: #dc3545;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 3px solid white;
+    box-shadow: 0 0 8px rgba(220, 53, 69, 0.8);
+}
