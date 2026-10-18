@@ -1,0 +1,4 @@
+node_modules/
+frontend/src/ts/*.js
+frontend/src/ts/*.js.map
+.firebase/

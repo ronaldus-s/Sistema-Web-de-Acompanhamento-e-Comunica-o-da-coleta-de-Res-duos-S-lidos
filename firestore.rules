@@ -1,0 +1,57 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function logado() {
+      return request.auth != null;
+    }
+
+    function perfilDe(uid) {
+      return get(/databases/$(database)/documents/usuarios/$(uid)).data.perfil;
+    }
+
+    function ehAdmin() {
+      return logado() && perfilDe(request.auth.uid) == 'admin';
+    }
+
+    function ehColetor() {
+      return logado() && perfilDe(request.auth.uid) == 'coletor';
+    }
+
+    // Perfis de usuário
+    match /usuarios/{uid} {
+      allow read: if logado() && (request.auth.uid == uid || ehAdmin());
+
+      // O próprio usuário cria o perfil, SEMPRE como "usuario".
+      // Coletor e admin só o administrador define (update abaixo).
+      allow create: if logado()
+        && request.auth.uid == uid
+        && request.resource.data.perfil == 'usuario'
+        && request.resource.data.keys().hasOnly(['nome', 'email', 'perfil', 'perfilSolicitado', 'criadoEm'])
+        && request.resource.data.perfilSolicitado in ['usuario', 'coletor'];
+
+      allow update, delete: if ehAdmin();
+    }
+
+    // Cronograma: público
+    match /regioes/{id} {
+      allow read: if true;
+      allow write: if ehAdmin();
+    }
+
+    // Avisos: só logados leem; só admin publica/remove
+    match /avisos/{id} {
+      allow read: if logado();
+      allow write: if ehAdmin();
+    }
+
+    // Coletas
+    match /coletas/{id} {
+      allow read: if logado();
+      allow create: if ehColetor() && request.resource.data.coletorUid == request.auth.uid;
+      allow update: if ehAdmin() || (ehColetor() && resource.data.coletorUid == request.auth.uid);
+      allow delete: if ehAdmin();
+    }
+  }
+}

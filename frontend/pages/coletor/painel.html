@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel - Coletor | Coleta Quixadá</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../src/css/style.css">
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="app-navbar">
+        <div class="container d-flex align-items-center justify-content-between">
+            <a class="app-brand" href="#">
+                <span class="app-brand-logo">
+                    <img src="https://sedumasp-quixada.web.app/assets/logo-sedumasp-BuEpVZSg.png" alt="Logo SEDUMASP">
+                </span>
+                <span class="app-brand-text">
+                    Coleta Quixadá
+                    <small>Painel do Coletor</small>
+                </span>
+            </a>
+            <button class="btn btn-nav-light" onclick="sair()">
+                <i class="bi bi-box-arrow-right me-1"></i>Sair
+            </button>
+        </div>
+    </nav>
+
+    <main class="container page-content page-content-top">
+
+        <!-- BOAS-VINDAS -->
+        <div class="welcome-card">
+            <div class="welcome-avatar"><i class="bi bi-person-fill"></i></div>
+            <div class="flex-grow-1">
+                <h1 id="boas-vindas" class="welcome-title">Bem-vindo(a)!</h1>
+                <small id="info-perfil" class="welcome-info"></small>
+            </div>
+            <span id="badge-nivel" class="badge-nivel"></span>
+        </div>
+
+        <!-- PAINEL OPERACIONAL -->
+        <div class="panel-card">
+            <div class="panel-card-header">
+                <h2><i class="bi bi-truck me-2"></i>Painel operacional</h2>
+                <p>Escolha a rota e inicie a transmissão para os moradores acompanharem o caminhão.</p>
+            </div>
+
+            <div class="panel-body">
+
+                <!-- 1. Rota -->
+                <div class="coletor-step">
+                    <label class="step-label" for="coletor-rota">
+                        <span class="step-num">1</span>Selecione sua rota
+                    </label>
+                    <div class="select-custom">
+                        <i class="bi bi-signpost-2"></i>
+                        <select id="coletor-rota" class="form-select">
+                            <option value="Rota 01 - Centro / Alto São Francisco">Rota 01 - Centro / Alto São Francisco</option>
+                            <option value="Rota 02 - Campo Novo / São João">Rota 02 - Campo Novo / São João</option>
+                            <option value="Rota 03 - Planalto Universitário">Rota 03 - Planalto Universitário</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- 2. Transmissão -->
+                <div class="coletor-step">
+                    <span class="step-label"><span class="step-num">2</span>Transmissão de localização</span>
+                    <div class="transmit-box">
+                        <div id="transmit-indicator" class="transmit-indicator">
+                            <i class="bi bi-broadcast-pin"></i>
+                        </div>
+                        <div class="transmit-buttons">
+                            <button id="btn-iniciar" class="btn-acao btn-acao-iniciar" onclick="iniciarRotaColetor()">
+                                <i class="bi bi-play-circle-fill"></i>Iniciar transmissão
+                            </button>
+                            <button id="btn-cancelar" class="btn-acao btn-acao-parar" onclick="cancelarRotaColetor()">
+                                <i class="bi bi-stop-circle-fill"></i>Encerrar transmissão
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. Situação -->
+                <div class="coletor-step">
+                    <span class="step-label"><span class="step-num">3</span>Situação da rota</span>
+                    <div class="sit-buttons">
+                        <button id="btn-normal" class="sit-btn sit-btn-normal" onclick="normalizarSituacao()">
+                            <i class="bi bi-check-circle-fill"></i>Normal
+                        </button>
+                        <button id="btn-atraso" class="sit-btn sit-btn-atrasado" onclick="informarAtraso()">
+                            <i class="bi bi-clock-history"></i>Informar atraso
+                        </button>
+                        <button id="btn-interrupcao" class="sit-btn sit-btn-interrompido" onclick="informarInterrupcao()">
+                            <i class="bi bi-exclamation-octagon-fill"></i>Informar interrupção
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Mensagens -->
+                <div id="coletor-aviso" class="coletor-aviso d-none" role="status" aria-live="polite"></div>
+
+                <!-- Resumo -->
+                <div class="resumo-grid">
+                    <div class="resumo-item">
+                        <span class="resumo-label"><i class="bi bi-signpost-2"></i>Rota atual</span>
+                        <span id="tabela-rota" class="resumo-valor">-</span>
+                    </div>
+                    <div class="resumo-item">
+                        <span class="resumo-label"><i class="bi bi-clock"></i>Início</span>
+                        <span id="tabela-inicio" class="resumo-valor">-</span>
+                    </div>
+                    <div class="resumo-item">
+                        <span class="resumo-label"><i class="bi bi-broadcast"></i>Transmissão</span>
+                        <span id="tabela-status" class="status-pill estado-aguardando">Aguardando início</span>
+                    </div>
+                    <div class="resumo-item">
+                        <span class="resumo-label"><i class="bi bi-activity"></i>Situação</span>
+                        <span id="badge-situacao" class="sit-badge sit-normal"><i class="bi bi-check-circle-fill"></i>Normal</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <footer class="app-footer">
+        <div class="container d-flex flex-wrap justify-content-between gap-2">
+            <span>© 2026 Quixadá • Ceará</span>
+            <span><i class="bi bi-shield-check me-1"></i>Secretaria de Desenvolvimento Urbano e Meio Ambiente</span>
+        </div>
+    </footer>
+
+    <script type="module" src="../../src/ts/coleta.js"></script>
+    <script type="module">
+        import { exibirCabecalhoSessao, exigirPerfil, sair } from '../../src/ts/auth.js';
+        exigirPerfil(['coletor']);
+        exibirCabecalhoSessao();
+        window.sair = sair;
+    </script>
+</body>
+</html>

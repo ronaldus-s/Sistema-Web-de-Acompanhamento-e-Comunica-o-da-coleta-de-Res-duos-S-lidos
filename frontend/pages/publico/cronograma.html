@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cronograma - Coleta Quixadá</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../src/css/style.css">
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="app-navbar">
+        <div class="container d-flex align-items-center justify-content-between">
+            <a class="app-brand" href="../../index.html">
+                <span class="app-brand-logo">
+                    <img src="https://sedumasp-quixada.web.app/assets/logo-sedumasp-BuEpVZSg.png" alt="Logo SEDUMASP">
+                </span>
+                <span class="app-brand-text">
+                    Coleta Quixadá
+                    <small>Sistema de Gestão de Resíduos</small>
+                </span>
+            </a>
+
+            <a href="../../index.html" class="btn btn-nav-light">
+                <i class="bi bi-box-arrow-in-right me-1"></i>Fazer Login
+            </a>
+        </div>
+    </nav>
+
+    <!-- HERO -->
+    <header class="page-hero">
+        <div class="container">
+            <span class="hero-badge"><i class="bi bi-calendar-week"></i> Consulta pública</span>
+            <h1 class="hero-title">Cronograma de Coleta</h1>
+            <p class="hero-subtitle">
+                Consulte os dias e horários em que o caminhão passa no seu bairro.
+            </p>
+
+            <div class="search-box">
+                <i class="bi bi-search"></i>
+                <input type="search" id="busca-regiao" placeholder="Buscar pelo nome do bairro..."
+                       aria-label="Buscar bairro" autocomplete="off">
+            </div>
+        </div>
+    </header>
+
+    <!-- CONTEÚDO -->
+    <main class="container page-content">
+
+        <div class="panel-card">
+            <div class="panel-card-header">
+                <div>
+                    <h2><i class="bi bi-geo-alt-fill me-2"></i>Bairros atendidos</h2>
+                    <p>Horários sujeitos a alterações. Avisos importantes ficam na área do morador.</p>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table tabela-cronograma align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th><i class="bi bi-pin-map me-1"></i>Bairro</th>
+                            <th><i class="bi bi-calendar-check me-1"></i>Dias</th>
+                            <th><i class="bi bi-clock me-1"></i>Horário</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabela-regioes">
+                        <tr><td colspan="3" class="text-muted small">Carregando...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="sem-resultado" class="empty-state d-none">
+                <i class="bi bi-search"></i>
+                <p>Nenhum bairro encontrado para essa busca.</p>
+            </div>
+        </div>
+
+        <!-- CHAMADA PARA LOGIN -->
+        <div class="cta-banner">
+            <div class="cta-icon"><i class="bi bi-truck"></i></div>
+            <div class="cta-text">
+                <h3>Quer ver o caminhão em tempo real?</h3>
+                <p>Entre na sua conta para acompanhar o caminhão no mapa e receber avisos da sua região.</p>
+            </div>
+            <div class="cta-actions">
+                <a href="../../index.html" class="btn btn-cta">Entrar <i class="bi bi-arrow-right ms-1"></i></a>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="app-footer">
+        <div class="container d-flex flex-wrap justify-content-between gap-2">
+            <span>© 2026 Quixadá • Ceará</span>
+            <span><i class="bi bi-shield-check me-1"></i>Secretaria de Desenvolvimento Urbano e Meio Ambiente</span>
+        </div>
+    </footer>
+
+    <script type="module">
+        import { carregarCronograma } from '../../src/ts/regiao.js';
+        carregarCronograma();
+    </script>
+
+    <!-- Busca: filtra as linhas já renderizadas na tabela -->
+    <script>
+        const campoBusca = document.getElementById('busca-regiao');
+        const corpoTabela = document.getElementById('tabela-regioes');
+        const semResultado = document.getElementById('sem-resultado');
+
+        campoBusca.addEventListener('input', () => {
+            const termo = campoBusca.value.trim().toLowerCase();
+            let visiveis = 0;
+
+            corpoTabela.querySelectorAll('tr').forEach(tr => {
+                const bate = tr.textContent.toLowerCase().includes(termo);
+                tr.classList.toggle('d-none', !bate);
+                if (bate) visiveis++;
+            });
+
+            semResultado.classList.toggle('d-none', visiveis > 0);
+        });
+    </script>
+    <script type="module">
+        import { obterSessao, destinoDoPerfil } from '../../src/ts/auth.js';
+
+        const sessao = obterSessao();
+        if (sessao) {
+            const botao = document.querySelector('.btn-nav-light');
+            if (botao) {
+                botao.setAttribute('href', destinoDoPerfil(sessao.perfil));
+                botao.innerHTML = '<i class="bi bi-speedometer2 me-1"></i>Meu painel';
+            }
+            document.querySelector('.cta-banner')?.remove();
+        }
+    </script>
+</body>
+</html>

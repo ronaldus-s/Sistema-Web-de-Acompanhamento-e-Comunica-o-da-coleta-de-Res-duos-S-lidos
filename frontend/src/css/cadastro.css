@@ -1,0 +1,436 @@
+/* =========================================================
+   COLETA QUIXADÁ - Estilos da Página de Cadastro (Split Screen)
+   ========================================================= */
+
+:root {
+    --brand-green-deep: #064e3b;
+    --brand-green-primary: #047857;
+    --brand-green-vibrant: #059669;
+    --brand-green-soft: #ecfdf5;
+    --brand-green-border: #a7f3d0;
+    --bg-mint-light: #f0fdf4;
+    --bg-mint-gradient: #e6f4ea;
+    --text-dark: #0f172a;
+    --text-muted: #64748b;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: linear-gradient(135deg, var(--bg-mint-light) 0%, var(--bg-mint-gradient) 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    padding: 1.5rem;
+    color: var(--text-dark);
+    position: relative;
+}
+
+/* Ambient Mesh Grid Overlay */
+.bg-mesh {
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(rgba(4, 120, 87, 0.06) 1px, transparent 1px);
+    background-size: 32px 32px;
+    pointer-events: none;
+}
+
+.split-card {
+    background: #ffffff;
+    border-radius: 28px;
+    box-shadow: 0 25px 50px -12px rgba(4, 78, 57, 0.15), 0 10px 20px -5px rgba(0, 0, 0, 0.04);
+    width: 100%;
+    max-width: 1080px;
+    min-height: 680px;
+    overflow: hidden;
+    display: flex;
+    position: relative;
+    z-index: 10;
+}
+
+.split-left {
+    flex: 1.15;
+    background: linear-gradient(150deg, var(--brand-green-deep) 0%, var(--brand-green-primary) 55%, var(--brand-green-vibrant) 100%);
+    color: #ffffff;
+    padding: 3.5rem 3.25rem 2.5rem 3.25rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Desktop Organic Curve Divider SVG */
+.organic-divider-desktop {
+    position: absolute;
+    top: 0;
+    right: -2px;
+    height: 100%;
+    width: 85px;
+    z-index: 3;
+    pointer-events: none;
+}
+
+/* Mobile Organic Curve Divider SVG */
+.organic-divider-mobile {
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 100%;
+    height: 48px;
+    z-index: 3;
+    pointer-events: none;
+}
+
+.badge-governance {
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    color: #ffffff;
+    font-weight: 600;
+    padding: 0.5rem 1.1rem;
+    border-radius: 50rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    font-size: 0.83rem;
+    letter-spacing: 0.3px;
+    margin-bottom: 1.75rem;
+}
+
+.brand-logo-group {
+    margin-bottom: 1.75rem;
+}
+
+.brand-icon-box {
+    width: 56px;
+    height: 56px;
+    background-color: #ffffff;
+    border-radius: 23px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.brand-icon-box img {
+    width: 56px;
+    height: 56px;
+    margin-top: 15px;
+}
+.brand-description {
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 0.95rem;
+    line-height: 1.65;
+    margin-top: 0.5rem;
+    margin-bottom: 2rem;
+    max-width: 440px;
+}
+
+/* Slogan Quote Box */
+.slogan-box {
+    background: rgba(255, 255, 255, 0.08);
+    border-left: 3.5px solid #34d399;
+    padding: 1.1rem 1.35rem;
+    border-radius: 0 16px 16px 0;
+    backdrop-filter: blur(4px);
+    margin-bottom: 2.25rem;
+}
+
+.slogan-box p {
+    margin: 0;
+    font-weight: 600;
+    font-size: 0.96rem;
+    color: #ffffff;
+    line-height: 1.5;
+    font-style: italic;
+}
+
+.truck-illustration-container {
+    width: 100%;
+    margin-top: auto;
+    margin-bottom: 1.25rem;
+    position: relative;
+    z-index: 2;
+}
+
+.truck-illustration {
+    width: 100%;
+    height: auto;
+    max-height: 190px;
+    filter: drop-shadow(0 12px 18px rgba(0, 0, 0, 0.18));
+}
+
+.left-footer {
+    padding-top: 1.25rem;
+    border-top: 2px solid rgba(255, 255, 255, 0.2);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #ffffff;
+    font-size: 0.8rem;
+}
+
+.split-right {
+    flex: 1;
+    background: #ffffff;
+    padding: 3rem 3.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+    z-index: 2;
+}
+
+/* Custom Input Groups */
+.input-group-custom {
+    position: relative;
+    margin-bottom: 1.15rem;
+}
+
+.input-group-custom .form-control,
+.input-group-custom .form-select {
+    height: 52px;
+    border-radius: 14px;
+    border: 1.5px solid #e2e8f0;
+    padding-left: 3.1rem;
+    padding-right: 2.75rem;
+    font-size: 0.92rem;
+    font-weight: 500;
+    color: var(--text-dark);
+    transition: all 0.2s ease;
+}
+
+.input-group-custom .form-control:focus,
+.input-group-custom .form-select:focus {
+    border-color: var(--brand-green-primary);
+    box-shadow: 0 0 0 4px rgba(4, 120, 87, 0.12);
+    background-color: #ffffff;
+}
+
+.input-group-custom .input-icon {
+    position: absolute;
+    left: 1.15rem;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 5;
+    color: var(--text-muted);
+    font-size: 1.2rem;
+    pointer-events: none;
+    transition: color 0.2s ease;
+}
+
+.input-group-custom .form-control:focus ~ .input-icon,
+.input-group-custom .form-select:focus ~ .input-icon {
+    color: var(--brand-green-primary);
+}
+
+.btn-toggle-pass {
+    position: absolute;
+    right: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 5;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    padding: 0.5rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.btn-toggle-pass:hover {
+    color: var(--brand-green-primary);
+}
+
+.btn-brand-primary {
+    background: linear-gradient(135deg, var(--brand-green-primary) 0%, var(--brand-green-deep) 100%);
+    color: #ffffff;
+    border: none;
+    border-radius: 14px;
+    height: 52px;
+    font-weight: 700;
+    font-size: 0.98rem;
+    letter-spacing: 0.2px;
+    box-shadow: 0 10px 20px -4px rgba(4, 120, 87, 0.35);
+    transition: all 0.25s ease;
+}
+
+.btn-brand-primary:hover {
+    background: linear-gradient(135deg, var(--brand-green-deep) 0%, #022c22 100%);
+    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 14px 24px -4px rgba(4, 120, 87, 0.45);
+}
+/* Bloco central do painel esquerdo */
+.brand-center {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 1.5rem 0;
+}
+
+.brand-logo-lg {
+    width: 130px;
+    height: 130px;
+    border-radius: 50%;
+    background: #ffffff;
+    box-shadow: 0 14px 28px rgba(0, 0, 0, 0.18);
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+}
+
+.brand-logo-lg img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.brand-title {
+    font-size: 2.1rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.brand-subtitle {
+    font-size: 0.85rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    opacity: 0.8;
+    margin: 0.35rem 0 1.75rem 0;
+}
+
+.brand-center .brand-description {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.brand-center .slogan-box {
+    max-width: 440px;
+    margin-bottom: 0;
+    border-left: none;
+    border-top: 3px solid #34d399;
+    border-radius: 0 0 16px 16px;
+}
+
+/* Link "Já possui uma conta?" */
+.login-link {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.35rem;
+    margin-top: 1rem;
+    font-size: 0.85rem;
+}
+
+.login-link span { color: var(--text-muted); }
+
+.login-link a {
+    color: var(--brand-green-primary);
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.login-link a:hover { color: var(--brand-green-deep); }
+
+@media (max-width: 575.98px) {
+    .brand-logo-lg { width: 100px; height: 100px; }
+    .brand-title { font-size: 1.7rem; }
+}
+
+@media (max-width: 991.98px) {
+    body {
+        padding: 1rem 0.75rem;
+    }
+
+    .split-card {
+        flex-direction: column;
+        min-height: auto;
+        border-radius: 22px;
+        box-shadow: 0 15px 35px -10px rgba(4, 78, 57, 0.12);
+    }
+
+    .split-left {
+        padding: 2.75rem 1.75rem 3.5rem 1.75rem;
+        text-align: center;
+        border-radius: 22px 22px 0 0;
+    }
+
+    .badge-governance {
+        margin-left: auto;
+        margin-right: auto;
+        margin-bottom: 1.25rem;
+    }
+
+    .brand-logo-group {
+        justify-content: center;
+        text-align: left;
+        margin-bottom: 1.25rem;
+    }
+
+    .brand-description {
+        margin-left: auto;
+        margin-right: auto;
+        margin-bottom: 1.5rem;
+        font-size: 0.9rem;
+    }
+
+    .slogan-box {
+        margin-left: auto;
+        margin-right: auto;
+        max-width: 480px;
+        border-left: none;
+        border-top: 3px solid #34d399;
+        border-radius: 0 0 16px 16px;
+        padding: 0.9rem 1.15rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .truck-illustration-container {
+        max-width: 340px;
+        margin: 0.75rem auto 1rem auto;
+    }
+
+    .truck-illustration {
+        max-height: 145px;
+    }
+
+    .left-footer {
+        justify-content: center;
+        gap: 1.5rem;
+        padding-top: 1rem;
+    }
+
+    .split-right {
+        padding: 2.5rem 1.75rem 2rem 1.75rem;
+    }
+}
+
+@media (max-width: 575.98px) {
+   
+
+    .split-right {
+        padding: 2rem 1.25rem 1.75rem 1.25rem;
+    }
+
+    .badge-governance {
+        font-size: 0.78rem;
+        padding: 0.4rem 0.85rem;
+    }
+
+    .brand-icon-box {
+        width: 56px;
+        height: 56px;
+    }
+}

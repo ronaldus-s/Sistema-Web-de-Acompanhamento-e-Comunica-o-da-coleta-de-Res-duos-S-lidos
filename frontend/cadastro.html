@@ -1,0 +1,153 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Cadastro - Coleta Quixadá</title>
+
+    <!-- Bootstrap -->
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+
+    <!-- Bootstrap Icons -->
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    >
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    >
+
+    <!-- CSS específico do cadastro -->
+    <link rel="stylesheet" href="src/css/cadastro.css">
+</head>
+
+<body>
+
+    <body>
+        <div class="bg-mesh"></div>
+    
+        <main class="split-card">
+    
+            <!-- PAINEL ESQUERDO -->
+            <section class="split-left">
+            
+                <!-- Topo -->
+                <div class="text-center">
+                    <span class="badge-governance mb-0">
+                        <i class="bi bi-buildings"></i> Prefeitura Municipal de Quixadá
+                    </span>
+                </div>
+            
+                <!-- Centro -->
+                <div class="brand-center">
+            
+                    <div class="brand-logo-lg">
+                        <img src="https://sedumasp-quixada.web.app/assets/logo-sedumasp-BuEpVZSg.png"
+                             alt="Logo SEDUMASP">
+                    </div>
+            
+                    <h1 class="brand-title">Coleta Quixadá</h1>
+                    <p class="brand-subtitle">Sistema de Gestão de Resíduos</p>
+            
+                    <p class="brand-description">
+                        Plataforma municipal para acompanhamento da coleta seletiva
+                        de resíduos sólidos e gestão logística em tempo real.
+                    </p>
+            
+                    <div class="slogan-box">
+                        <p>Crie Sua Conta Para ter Acesso ao Mapa em Tempo Real</p>
+                    </div>
+            
+                </div>
+            
+                <!-- Rodapé -->
+                <div class="left-footer">
+                    <span>© 2026 Quixadá • Ceará</span>
+                    <span><i class="bi bi-shield-check"></i> Portal Autêntico</span>
+                </div>
+            
+            </section>      
+            <!-- PAINEL DIREITO -->
+            <section class="split-right">
+    
+                <header class="text-center mb-4">
+                    <h2 class="fw-normal mb-1">Criar sua conta</h2>
+                    <p class="text-muted small mb-0">
+                        Preencha os dados abaixo para se cadastrar na plataforma.
+                    </p>
+                </header>
+    
+                <form id="cadastroForm">
+    
+                    <div class="input-group-custom">
+                        <label for="nome" class="visually-hidden">Nome completo</label>
+                        <input type="text" class="form-control" id="nome" name="nome"
+                               placeholder="Seu nome completo" autocomplete="name" required>
+                        <i class="bi bi-person input-icon"></i>
+                    </div>
+    
+                    <div class="input-group-custom">
+                        <label for="email" class="visually-hidden">E-mail</label>
+                        <input type="email" class="form-control" id="email" name="email"
+                               placeholder="seu.email@exemplo.com" autocomplete="email" required>
+                        <i class="bi bi-envelope input-icon"></i>
+                    </div>
+    
+                    <div class="input-group-custom">
+                        <label for="senha" class="visually-hidden">Senha</label>
+                        <input type="password" class="form-control" id="senha" name="senha"
+                               placeholder="Crie uma senha" autocomplete="new-password" required>
+                        <i class="bi bi-lock input-icon"></i>
+                        <button type="button" class="btn-toggle-pass" id="toggleSenha"
+                                aria-label="Mostrar ou ocultar senha">
+                            <i class="bi bi-eye" id="iconeSenha"></i>
+                        </button>
+                    </div>
+    
+                    <div class="input-group-custom">
+                        <label for="confirmarSenha" class="visually-hidden">Confirmar senha</label>
+                        <input type="password" class="form-control" id="confirmarSenha" name="confirmarSenha"
+                               placeholder="Digite a senha novamente" autocomplete="new-password" required>
+                        <i class="bi bi-shield-lock input-icon"></i>
+                    </div>
+    
+                    <div class="input-group-custom">
+                        <label for="perfil" class="visually-hidden">Tipo de acesso</label>
+                        <select class="form-select" id="perfil" name="perfil" required>
+                            <option value="" selected disabled>Selecione o tipo de acesso</option>
+                            <option value="usuario">Morador / Usuário</option>
+                            <option value="coletor">Coletor / Motorista</option>
+                        </select>
+                        <i class="bi bi-person-badge input-icon"></i>
+                    </div>
+    
+                    <button type="submit" class="btn btn-brand-primary w-100">
+                        Criar minha conta <i class="bi bi-arrow-right ms-1"></i>
+                    </button>
+                </form>
+    
+                <div class="login-link">
+                    <span>Já possui uma conta?</span>
+                    <a href="index.html">Entrar</a>
+                </div>
+            </section>
+        </main>
+    
+        <script type="module" src="src/ts/cadastro.js"></script>
+    </body>
+</body>
+
+</html>
+
