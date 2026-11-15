@@ -7,7 +7,7 @@
  */
 import { db } from "./firebase.js";
 import {
-  collection, doc, getDocs, addDoc, updateDoc, deleteDoc,
+  collection, doc, getDoc, getDocs, addDoc, updateDoc, deleteDoc,
   query, where, orderBy, limit, serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 import { auth } from "./firebase.js";
@@ -86,7 +86,11 @@ export async function removerAvisoPorId(documentId: string): Promise<void> {
 
 const CHAVE_COLETA_ATIVA = "coletaAtivaId";
 const INTERVALO_ENVIO_MS = 10_000; // limita escritas (cota do plano gratuito)
+const SEM_SINAL_MS = 10 * 60_000;  // coleta sem atualização há mais que isso não aparece mais no mapa
 let ultimoEnvio = 0;
+
+/** Coletas que o coletor já mandou encerrar: posições atrasadas do GPS são descartadas. */
+const encerradas = new Set<string>();
 
 function paraColeta(d: any): ColetaDTO {
   const x = d.data();
@@ -105,9 +109,44 @@ export function obterColetaAtivaIdLocal(): string | null {
   try { return localStorage.getItem(CHAVE_COLETA_ATIVA); } catch { return null; }
 }
 
+/**
+ * Encerra coletas que ficaram abertas por este coletor (aba fechada, celular sem bateria,
+ * erro de rede ao encerrar). Sem isso elas continuam "em andamento" para sempre.
+ */
+export async function encerrarColetasAbertasDoColetor(uid?: string): Promise<void> {
+  const dono = uid ?? auth.currentUser?.uid;
+  if (!dono) return;
+
+  const snap = await getDocs(
+    query(collection(db, "coletas"), where("coletorUid", "==", dono), where("emAndamento", "==", true))
+  );
+  await Promise.all(
+    snap.docs.map((d: any) => {
+      encerradas.add(d.id);
+      return updateDoc(d.ref, { emAndamento: false, atualizadoEm: serverTimestamp() });
+    })
+  );
+  try { localStorage.removeItem(CHAVE_COLETA_ATIVA); } catch { /* ignora */ }
+}
+
+/** Esquece a coleta guardada neste celular (sem mexer no servidor). */
+export function esquecerColetaLocal(): void {
+  try { localStorage.removeItem(CHAVE_COLETA_ATIVA); } catch { /* ignora */ }
+}
+
+/** Lê uma coleta pelo id (usado para retomar a transmissão depois de recarregar a página). */
+export async function buscarColetaPorId(documentId: string): Promise<ColetaDTO | null> {
+  await auth.authStateReady?.(); // espera o Firebase restaurar o login antes de ler
+  const snap = await getDoc(doc(db, "coletas", documentId));
+  return snap.exists() ? paraColeta(snap) : null;
+}
+
 export async function iniciarColeta(rota: string): Promise<string> {
   const uid = auth.currentUser?.uid;
   if (!uid) throw new Error("Sessão expirada. Entre novamente.");
+
+  // Uma coleta aberta por coletor: limpa as que ficaram para trás.
+  try { await encerrarColetasAbertasDoColetor(uid); } catch (e) { console.warn("Não foi possível limpar coletas antigas:", e); }
 
   const ref = await addDoc(collection(db, "coletas"), {
     rota,
@@ -127,6 +166,8 @@ export async function iniciarColeta(rota: string): Promise<string> {
 }
 
 export async function atualizarPosicaoColeta(documentId: string, latitude: number, longitude: number): Promise<void> {
+  if (encerradas.has(documentId)) return; // já encerrada: ignora posição que chegou atrasada
+
   const agora = Date.now();
   if (agora - ultimoEnvio < INTERVALO_ENVIO_MS) return;
   ultimoEnvio = agora;
@@ -137,9 +178,20 @@ export async function atualizarSituacaoColeta(documentId: string, situacao: Situ
   await updateDoc(doc(db, "coletas", documentId), { situacao, atualizadoEm: serverTimestamp() });
 }
 
+/**
+ * Só esquece a coleta local DEPOIS de o servidor confirmar. Antes, se a rede falhasse,
+ * o celular "esquecia" a coleta e ela ficava aberta no servidor para sempre.
+ * Em caso de erro, a exceção sobe para a tela avisar o coletor e ele poder tentar de novo.
+ */
 export async function finalizarColeta(documentId: string): Promise<void> {
+  encerradas.add(documentId); // para de aceitar novas posições imediatamente
+  try {
+    await updateDoc(doc(db, "coletas", documentId), { emAndamento: false, atualizadoEm: serverTimestamp() });
+  } catch (erro) {
+    encerradas.delete(documentId); // falhou: continua valendo, o coletor pode tentar de novo
+    throw erro;
+  }
   try { localStorage.removeItem(CHAVE_COLETA_ATIVA); } catch { /* ignora */ }
-  await updateDoc(doc(db, "coletas", documentId), { emAndamento: false, atualizadoEm: serverTimestamp() });
 }
 
 /** Coleta em andamento mais recente (ou null). Ordena no cliente para não exigir índice composto. */
@@ -147,10 +199,14 @@ export async function buscarColetaAtiva(): Promise<ColetaDTO | null> {
   const snap = await getDocs(query(collection(db, "coletas"), where("emAndamento", "==", true), limit(20)));
   if (snap.empty) return null;
 
-  const ordenadas = snap.docs
-    .map((d: any) => ({ d, t: d.data().atualizadoEm?.toMillis?.() ?? 0 }))
+  // atualizadoEm ausente = o servidor ainda não gravou (acabou de ser escrito): conta como recente.
+  const agora = Date.now();
+  const recentes = snap.docs
+    .map((d: any) => ({ d, t: d.data().atualizadoEm?.toMillis?.() ?? agora }))
+    .filter((x: any) => agora - x.t < SEM_SINAL_MS) // celular desligou ou perdeu sinal: não mostra caminhão parado
     .sort((a: any, b: any) => b.t - a.t);
-  return paraColeta(ordenadas[0].d);
+
+  return recentes.length ? paraColeta(recentes[0].d) : null;
 }
 
 export async function listarColetas(): Promise<ColetaDTO[]> {
@@ -164,4 +220,26 @@ export async function removerColetaPorId(documentId: string): Promise<void> {
 
 export async function forcarEncerrarColetaPorId(documentId: string): Promise<void> {
   await updateDoc(doc(db, "coletas", documentId), { emAndamento: false, atualizadoEm: serverTimestamp() });
+}
+
+/** Admin: encerra todas as coletas que estão "em andamento". Devolve quantas encerrou. */
+export async function encerrarTodasColetasAbertas(): Promise<number> {
+  const snap = await getDocs(query(collection(db, "coletas"), where("emAndamento", "==", true), limit(500)));
+  await Promise.all(
+    snap.docs.map((d: any) => updateDoc(d.ref, { emAndamento: false, atualizadoEm: serverTimestamp() }))
+  );
+  return snap.size;
+}
+
+/** Admin: apaga TODOS os registros de coleta. Devolve quantos apagou. */
+export async function apagarTodasColetas(): Promise<number> {
+  let total = 0;
+  for (let rodada = 0; rodada < 20; rodada++) { // lotes de 500, com trava de segurança
+    const snap = await getDocs(query(collection(db, "coletas"), limit(500)));
+    if (snap.empty) break;
+    await Promise.all(snap.docs.map((d: any) => deleteDoc(d.ref)));
+    total += snap.size;
+  }
+  try { localStorage.removeItem(CHAVE_COLETA_ATIVA); } catch { /* ignora */ }
+  return total;
 }
