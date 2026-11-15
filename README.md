@@ -1,117 +1,176 @@
 # Sistema Web de Acompanhamento e Comunicação da Coleta de Resíduos Sólidos em Quixadá
 
-Aplicação web que facilita o acesso da população de Quixadá às informações sobre a coleta de resíduos sólidos, permitindo consultar o status das operações, visualizar a localização atualizada dos veículos de coleta e receber avisos sobre atrasos, interrupções ou alterações nas rotas.
+Aplicação web que facilita o acesso da população de Quixadá às informações sobre a coleta de resíduos sólidos, permitindo consultar os horários por bairro, visualizar a localização atualizada do caminhão de coleta e receber avisos sobre atrasos, interrupções ou alterações nas rotas.
 
-Projeto acadêmico desenvolvido para a disciplina de Fundamentos de Programação Web — UFC Quixadá, com caráter de extensão universitária.
+Projeto acadêmico da UFC Quixadá, com caráter de extensão universitária.
+
+> **Nota:** esta é a versão com **Firebase** (Authentication, Firestore e Hosting). A versão com Strapi é mantida separadamente.
 
 ## Sobre o projeto
 
 O cidadão frequentemente tem dificuldade para saber se o veículo de coleta já passou por sua região, quando a coleta está sendo realizada ou se ocorreu alguma alteração no serviço. Um calendário fixo não é suficiente para representar situações como atrasos, interrupções ou mudanças de rota.
 
-Esta aplicação oferece uma alternativa dinâmica: moradores acompanham o status da coleta e a localização dos veículos em tempo real, enquanto profissionais de coleta atualizam as operações através de uma área restrita.
+Esta aplicação oferece uma alternativa dinâmica: moradores acompanham a coleta e a posição do caminhão em tempo real, enquanto os coletores atualizam as operações por uma área restrita.
 
-##  Público-alvo
+## Público-alvo
 
-- **Moradores de Quixadá** — consultam informações sobre a coleta em suas regiões
-- **Profissionais de coleta** — atualizam o andamento das operações
-- **Administradores** — gerenciam dados e usuários do sistema
+- **Moradores de Quixadá**: consultam informações sobre a coleta em suas regiões
+- **Coletores**: iniciam a coleta e transmitem a posição do caminhão
+- **Administradores**: gerenciam regiões, avisos e coletas
 
-##  Funcionalidades
+## Funcionalidades
 
-### Área pública (sem autenticação)
-- Mapa das regiões atendidas
-- Status das coletas em tempo real
-- Localização atualizada dos veículos em operação
+### Área pública (sem login)
+- Cronograma de coleta por bairro (dias e horários), com busca
+
+### Área do morador (com login)
+- Mapa com a posição do caminhão em tempo real
+- Distância em linha reta até o caminhão, usando a localização do celular
+- Situação da coleta: normal, atrasada ou interrompida
 - Avisos publicados pela equipe
 
-### Área do coletor (autenticado)
-- Iniciar e finalizar operação de coleta
-- Selecionar região/rota atendida
-- Atualizar status, informar atrasos e interrupções
-- Compartilhar localização periodicamente
+### Área do coletor (com login)
+- Iniciar e encerrar a coleta, escolhendo a rota
+- Informar atraso, interrupção ou volta ao normal
+- Transmitir a localização periodicamente
+- Retomar a transmissão automaticamente se a página for recarregada
 
-### Área administrativa (autenticado)
-- CRUD completo de regiões, coletas e avisos
-- Gerenciamento de usuários e permissões
-
-##  Entidades e relacionamentos
-
-| Entidade | Depende de | Descrição |
-|---|---|---|
-| **Região** | — | Bairro/área atendida pelo serviço de coleta |
-| **Coleta** | Região (1:N) | Operação de coleta realizada em uma região |
-| **Aviso** | Região (1:N) | Comunicação relacionada a uma região |
+### Área administrativa (com login)
+- Regiões: cadastrar, alterar horário e remover
+- Avisos: criar, listar e remover
+- Coletas: acompanhar, forçar o encerramento, apagar registros e agir em lote ("Encerrar todas abertas" e "Apagar todas")
 
 ## Papéis de usuário
 
 | Papel | Permissões |
 |---|---|
-| **Morador** | Consulta regiões, coletas, mapa e avisos |
-| **Coletor** | Inicia/atualiza/finaliza coletas, envia localização |
-| **Administrador** | Gerencia regiões, coletas, avisos, usuários e permissões |
+| **Morador** (`usuario`) | Vê cronograma, mapa e avisos |
+| **Coletor** (`coletor`) | Inicia, atualiza e encerra a própria coleta |
+| **Administrador** (`admin`) | Gerencia regiões, avisos e coletas |
 
-##  Tecnologias
+Todo cadastro novo entra como **morador**. Quem pede para ser coletor fica com a solicitação registrada, e a promoção a coletor ou administrador é feita manualmente no console do Firebase (veja "Criar o primeiro administrador").
+
+## Dados (Cloud Firestore)
+
+| Coleção | Conteúdo |
+|---|---|
+| `usuarios` | Perfil de cada conta: nome, e-mail, perfil e perfil solicitado |
+| `regioes` | Bairros atendidos, com dias e horário da coleta |
+| `avisos` | Comunicados publicados pela equipe |
+| `coletas` | Coletas em andamento ou encerradas: rota, situação, posição e coletor |
+
+A modelagem original em `docs/` descreve a versão inicial do projeto. Nesta versão, os dados ficam no Firestore, conforme a tabela acima.
+
+## Segurança
+
+O acesso é controlado pelas regras do Firestore (`firestore.rules`):
+
+- O cronograma (`regioes`) pode ser lido sem login.
+- Avisos e coletas exigem login.
+- Só o administrador cria, altera ou remove regiões e avisos.
+- O coletor só cria e altera a própria coleta.
+- Ninguém consegue se promover a coletor ou administrador pelo cadastro.
+
+A chave (`apiKey`) do Firebase que aparece em `firebase.ts` é a chave pública de um app web e não é um segredo. A proteção dos dados está nas regras acima.
+
+## Tecnologias
 
 **Frontend**
-- HTML, CSS, TypeScript
-- Bootstrap
-- Leaflet.js (mapa interativo)
+- HTML, CSS e TypeScript (compilado com `tsc`, sem bundler)
+- Bootstrap 5 e Bootstrap Icons
+- Leaflet.js com mapas do OpenStreetMap
 
-**Backend**
-- Strapi (CMS headless / API REST)
-- Autenticação JWT
+**Backend (Firebase)**
+- Firebase Authentication (e-mail e senha)
+- Cloud Firestore
+- Firebase Hosting
 
-**Banco de dados**
-- SQLite (configuração padrão do Strapi)
-
-**APIs e serviços externos**
-- OpenStreetMap / Nominatim — dados cartográficos e geocodificação
-- OpenRouteService — cálculo de rota e distância
-- ViaCEP — consulta de endereço por CEP
-
-##  Estrutura do projeto
+## Estrutura do projeto
 
 ```
 .
-├── backend/          # Projeto Strapi (API REST + autenticação)
-├── docs/             # Proposta, modelagem de entidades e prints
+├── docs/                 # Proposta e modelagem
+├── firebase.json         # Configuração do Hosting e das regras
+├── firestore.rules       # Regras de segurança do Firestore
+├── .firebaserc           # Projeto Firebase padrão
+├── package.json
+├── tsconfig.json
 └── frontend/
-    ├── index.html
-    ├── login.html
+    ├── index.html        # Login
+    ├── cadastro.html     # Criar conta
     ├── src/
-    │   ├── ts/        # Lógica em TypeScript (auth, api, mapa, entidades)
-    │   └── css/       # Estilos
+    │   ├── ts/           # Lógica em TypeScript (firebase, auth, api, mapa, coleta...)
+    │   └── css/          # Estilos
     └── pages/
-        ├── publico/   # Mapa e avisos (sem autenticação)
-        ├── coletor/   # Painel do coletor
-        └── admin/     # Painel administrativo
+        ├── publico/      # Cronograma, avisos e mapa
+        ├── coletor/      # Painel do coletor
+        └── admin/        # Painel administrativo
 ```
 
-##  Como rodar o projeto
+Os arquivos `.js` gerados pela compilação não são versionados. É preciso rodar `npm run build` antes de testar ou publicar.
 
-### Backend (Strapi)
+## Como rodar o projeto
+
+### 1. Pré-requisitos
+- Node.js e npm
+- Uma conta Google para o Firebase
+
+### 2. Instalar e compilar
 
 ```bash
-cd backend
 npm install
-npm run develop
+npm run build
 ```
 
-O painel administrativo do Strapi fica disponível em `http://localhost:1337/admin`.
+### 3. Configurar o Firebase
 
-### Frontend
+1. No [console do Firebase](https://console.firebase.google.com), crie um projeto e um app web.
+2. Ative **Authentication** (método e-mail/senha) e o **Firestore Database**.
+3. Copie a configuração do app para `frontend/src/ts/firebase.ts` e rode `npm run build` de novo.
+4. Se usar outro projeto, ajuste o nome em `.firebaserc`.
+5. Publique as regras de segurança:
 
 ```bash
-cd frontend
-# abrir index.html diretamente no navegador,
-# ou servir com uma extensão tipo Live Server
+npx firebase-tools login
+npx firebase-tools deploy --only firestore:rules
 ```
 
-## Equipe
+### 4. Abrir o sistema
 
-- [nome do integrante 1]
-- [nome do integrante 2]
+Sirva a pasta `frontend/` com uma extensão como o Live Server e abra `index.html`.
 
-##  Licença
+A localização do celular só funciona em **HTTPS** ou em `localhost`. Para testar o mapa em um celular, publique um canal de teste:
+
+```bash
+npx firebase-tools hosting:channel:deploy teste
+```
+
+### 5. Publicar
+
+```bash
+npm run build
+npx firebase-tools deploy --only hosting
+```
+
+### 6. Criar o primeiro administrador
+
+1. Cadastre uma conta em `cadastro.html`.
+2. No console do Firebase, copie o **UID** da conta em **Authentication → Usuários**.
+3. Em **Firestore → `usuarios` →** documento com esse UID, mude o campo `perfil` para `admin` (ou `coletor`).
+4. Saia do sistema e entre de novo.
+
+## Status do projeto
+
+**Entregue:** login e cadastro com três perfis, cronograma público, painel do coletor, mapa com o caminhão em tempo real, avisos e painel administrativo de regiões, avisos e coletas.
+
+**Ainda não implementado:**
+- Rotas desenhadas no mapa
+- Regiões atendidas e pendentes no mapa
+- Tela de gestão de usuários no painel administrativo (hoje a promoção é feita no console do Firebase)
+- Edição de avisos
+- Vínculo entre avisos e regiões
+
+
+## Licença
 
 Este projeto está sob a licença especificada no arquivo [LICENSE](./LICENSE).
